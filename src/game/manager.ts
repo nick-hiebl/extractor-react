@@ -1,8 +1,14 @@
 import { Vector } from '../common/vector';
 import { Canvas } from '../dom/canvas';
+import { createExternalStore, ExternalStore } from '../state/external-store';
 
+import { type Card, createDefaultCardList } from './cards/deck';
 import { InputManager } from './input';
 import { World } from './world';
+
+type ExternalGameState = {
+	state: 'world';
+};
 
 export class GameManager {
 	input: InputManager;
@@ -12,13 +18,29 @@ export class GameManager {
 
 	camera: Vector;
 
+	cards: Card[];
+
+	externalStore: ExternalStore<ExternalGameState>;
+
+	state: ExternalGameState;
+
 	constructor() {
 		this.input = new InputManager();
 		this.screen = Canvas.fromId('canvas');
 
-		this.world = new World();
+		this.cards = createDefaultCardList();
+		
+		this.world = new World(this.cards);
 
 		this.camera = Vector.zero();
+
+		this.externalStore = createExternalStore(() => this.getState());
+
+		this.state = { state: 'world' };
+	}
+
+	getState(): ExternalGameState {
+		return this.state;
 	}
 
 	start() {

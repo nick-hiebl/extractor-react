@@ -1,3 +1,4 @@
+import { type Card, type Deck, setUpDeck } from '../cards/deck';
 import { createGrid } from '../../common/grid-utils';
 import { Canvas } from '../../dom/canvas';
 
@@ -12,10 +13,14 @@ export class World {
 	grid: Cell[][];
 	screen: Canvas;
 
-	constructor() {
+	deck: Deck;
+
+	constructor(cardList: Card[]) {
 		this.grid = createGrid(WORLD_HEIGHT, WORLD_WIDTH, () => Math.random() > 0.7 ? true : null);
 
 		this.screen = Canvas.create(WORLD_WIDTH * SCALE, WORLD_HEIGHT * SCALE);
+
+		this.deck = setUpDeck(cardList);
 	}
 
 	draw() {

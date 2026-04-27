@@ -5,6 +5,7 @@ type Unsubscribe = Callback;
 export type ExternalStore<T> = {
 	subscribe: (onUpdated: Callback) => Unsubscribe;
 	getSnapshot: () => T;
+	triggerUpdate: Callback;
 };
 
 export const createExternalStore = <T>(getSnapshot: () => T): ExternalStore<T> => {
@@ -24,8 +25,15 @@ export const createExternalStore = <T>(getSnapshot: () => T): ExternalStore<T> =
 		};
 	};
 
+	const triggerUpdate = () => {
+		for (const subscriber of subscribers) {
+			subscriber();
+		}
+	};
+
 	return {
 		subscribe: onSubscribe,
 		getSnapshot,
+		triggerUpdate,
 	};
 };
