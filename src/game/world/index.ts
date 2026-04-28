@@ -1,6 +1,7 @@
 import { type Card, type Deck, setUpDeck } from '../cards/deck';
 import { createGrid } from '../../common/grid-utils';
 import { Canvas } from '../../dom/canvas';
+import { createExternalStore, type ExternalStore } from '../../state/external-store';
 
 type Cell = null | true;
 
@@ -15,12 +16,16 @@ export class World {
 
 	deck: Deck;
 
+	deckWatcher: ExternalStore<Deck>;
+
 	constructor(cardList: Card[]) {
 		this.grid = createGrid(WORLD_HEIGHT, WORLD_WIDTH, () => Math.random() > 0.7 ? true : null);
 
 		this.screen = Canvas.create(WORLD_WIDTH * SCALE, WORLD_HEIGHT * SCALE);
 
 		this.deck = setUpDeck(cardList);
+
+		this.deckWatcher = createExternalStore(() => this.deck);
 	}
 
 	draw() {
