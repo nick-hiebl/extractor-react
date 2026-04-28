@@ -1,7 +1,10 @@
 import { type Card, type Deck, setUpDeck } from '../cards/deck';
 import { createGrid } from '../../common/grid-utils';
+import { Vector } from '../../common/vector';
 import { Canvas } from '../../dom/canvas';
 import { createExternalStore, type ExternalStore } from '../../state/external-store';
+
+import { Player } from './player';
 
 type Cell = null | true;
 
@@ -18,6 +21,8 @@ export class World {
 
 	deckWatcher: ExternalStore<Deck>;
 
+	player: Player;
+
 	constructor(cardList: Card[]) {
 		this.grid = createGrid(WORLD_HEIGHT, WORLD_WIDTH, () => Math.random() > 0.7 ? true : null);
 
@@ -26,6 +31,8 @@ export class World {
 		this.deck = setUpDeck(cardList);
 
 		this.deckWatcher = createExternalStore(() => this.deck);
+
+		this.player = new Player(Vector.zero());
 	}
 
 	draw() {
@@ -61,5 +68,8 @@ export class World {
 		}
 
 		ctx.fill();
+
+		ctx.fillStyle = 'skyblue';
+		ctx.fillRect(this.player.pos.x * SCALE + INSET, this.player.pos.y * SCALE + INSET, SCALE - 2 * INSET, SCALE - 2 * INSET);
 	}
 }
