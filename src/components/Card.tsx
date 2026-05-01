@@ -10,8 +10,14 @@ type Props = {
 
 export const CardComponent = ({ card }: Props) => {
 	return (
-		<div className="stack card">
-			<span>{card.name}</span>
+		<div className="column card">
+			<div className="card-title">{card.name}</div>
+			<div className="card-bottom">
+				<span>{card.text}</span>
+				{card.tags.map(tag => (
+					<span key={tag}>{tag}</span>
+				))}
+			</div>
 		</div>
 	);
 };

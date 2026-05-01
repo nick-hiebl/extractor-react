@@ -15,7 +15,8 @@ export type Card = {
 	name: string;
 	id: number;
 	tags: Tag[];
-	effects: Effect[];
+	effect: (context: CardPlayContext) => void;
+	text: string;
 };
 
 export type Deck = {
@@ -34,49 +35,40 @@ export const setUpDeck = (cardList: Card[]): Deck => {
 	};
 };
 
+const moveEffect = (num: number) => (context: CardPlayContext) => context.gainMove(num);
+
+const GoCard = (): Card => ({
+	name: 'Go!',
+	id: getCardId(),
+	tags: [],
+	effect: moveEffect(5),
+	text: 'Move 5',
+});
+
+const RunCard = (): Card => ({
+	name: 'Run!',
+	id: getCardId(),
+	tags: [],
+	effect: moveEffect(8),
+	text: 'Move 8',
+});
+
+const GrabCard = (): Card => ({
+	name: 'Grab!',
+	id: getCardId(),
+	tags: ['single-use'],
+	effect: context => context.gainPickUp(1),
+	text: 'Pick up',
+});
+
 export const createDefaultCardList = (): Card[] => {
 	return [
-		{
-			name: 'Go!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 5 }],
-		},
-		{
-			name: 'Go!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 5 }],
-		},
-		{
-			name: 'Go!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 5 }],
-		},
-		{
-			name: 'Go!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 5 }],
-		},
-		{
-			name: 'Go!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 5 }],
-		},
-		{
-			name: 'Run!',
-			id: getCardId(),
-			tags: [],
-			effects: [{ type: 'move', amount: 8 }],
-		},
-		{
-			name: 'Grab',
-			id: getCardId(),
-			tags: ['single-use'],
-			effects: [{ type: 'pick-up' }],
-		},
+		GoCard(),
+		GoCard(),
+		GoCard(),
+		GoCard(),
+		GoCard(),
+		RunCard(),
+		GrabCard(),
 	];
 };

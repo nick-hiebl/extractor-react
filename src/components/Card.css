@@ -1,8 +1,44 @@
 .card {
 	width: 160px;
 	height: 240px;
+	box-sizing: border-box;
 	border: 1px solid white;
 	text-align: center;
 	background-color: black;
 	color: white;
+
+	display: grid;
+	grid-template-areas:
+		'card-title'
+		'card-image'
+		'card-bottom';
+	
+	grid-template-rows: min-content 120px auto;
+	border-radius: 8px;
+	overflow: hidden;
+
+	transition: transform 0.1s ease;
+	margin-right: -24px;
+}
+
+.card:hover {
+	transform: scale(1.03);
+	transition: transform 0.1s ease;
+	z-index: 10;
+}
+
+.card-title {
+	grid-area: card-title;
+	background-color: #333;
+	padding: 4px;
+}
+
+.card-bottom {
+	grid-area: card-bottom;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 4px;
+	justify-content: center;
+	background-color: #333;
 }
