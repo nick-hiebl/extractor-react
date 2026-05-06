@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from 'react';
+
 type Callback = () => void;
 
 type Unsubscribe = Callback;
@@ -36,4 +38,8 @@ export const createExternalStore = <T>(getSnapshot: () => T): ExternalStore<T> =
 		getSnapshot,
 		triggerUpdate,
 	};
+};
+
+export const useExternalStore = <T>(store: ExternalStore<T>) => {
+	return useSyncExternalStore(store.subscribe, store.getSnapshot);
 };

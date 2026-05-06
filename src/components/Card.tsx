@@ -6,11 +6,12 @@ import './Card.css';
 
 type Props = {
 	card: Card;
+	onClick?: () => void;
 };
 
-export const CardComponent = ({ card }: Props) => {
+export const CardComponent = ({ card, onClick }: Props) => {
 	return (
-		<div className="column card">
+		<div className="column card" onClick={onClick}>
 			<div className="card-title">{card.name}</div>
 			<div className="card-bottom">
 				<span>{card.text}</span>

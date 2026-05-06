@@ -1,3 +1,5 @@
+import { chooseRandom } from '../../common/random-utils';
+
 let n = 0;
 export const getCardId = () => {
 	return n++;
@@ -32,6 +34,52 @@ export const setUpDeck = (cardList: Card[]): Deck => {
 		discard: [],
 		destroyed: [],
 		draw: cardList.slice(),
+	};
+};
+
+export const drawCards = (deck: Deck, numCards: number): Deck => {
+	const drawnCards = chooseRandom(deck.draw, numCards);
+
+	// If we already have enough cards or can't reshuffle discard anyway, only draw these cards
+	if (drawnCards.length === numCards || deck.discard.length === 0) {
+		return {
+			...deck,
+			hand: deck.hand.concat(drawnCards),
+			draw: deck.draw.filter(c => !drawnCards.some(drawnCard => drawnCard.id === c.id)),
+		};
+	}
+
+	// Need to reshuffle from discard potentially
+	const drawnFromDiscard = chooseRandom(deck.discard, numCards - drawnCards.length);
+	return {
+		...deck,
+		hand: deck.hand.concat(...drawnCards, ...drawnFromDiscard),
+		discard: [],
+		draw: deck.discard.filter(c => !drawnFromDiscard.some(drawnCard => drawnCard.id === c.id)),
+	};
+};
+
+export const playCard = (deck: Deck, cardId: number): Deck => {
+	return {
+		...deck,
+		hand: deck.hand.filter(c => c.id !== cardId),
+		discard: deck.discard.concat(deck.hand.filter(c => c.id === cardId)),
+	};
+};
+
+export const destroyCard = (deck: Deck, cardId: number): Deck => {
+	const theCard = [...deck.discard, ...deck.draw, ...deck.hand].find(c => c.id === cardId);
+
+	if (!theCard) {
+		return deck;
+	}
+
+	return {
+		...deck,
+		hand: deck.hand.filter(c => c.id !== cardId),
+		draw: deck.draw.filter(c => c.id !== cardId),
+		discard: deck.discard.filter(c => c.id !== cardId),
+		destroyed: deck.destroyed.concat(theCard),
 	};
 };
 

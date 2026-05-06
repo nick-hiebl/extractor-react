@@ -1,4 +1,4 @@
-import { type Card, type Deck, setUpDeck } from '../cards/deck';
+import { type Card, type Deck, destroyCard, drawCards, playCard, setUpDeck } from '../cards/deck';
 import { createGrid } from '../../common/grid-utils';
 import { Vector } from '../../common/vector';
 import { Canvas } from '../../dom/canvas';
@@ -13,6 +13,11 @@ const SCALE = 16;
 const WORLD_WIDTH = 20;
 const WORLD_HEIGHT = 10;
 
+type RunningState = {
+	moves: number;
+	pickUps: number;
+};
+
 export class World {
 	grid: Cell[][];
 	screen: Canvas;
@@ -20,19 +25,84 @@ export class World {
 	deck: Deck;
 
 	deckWatcher: ExternalStore<Deck>;
+	stateWatcher: ExternalStore<RunningState>;
 
 	player: Player;
+
+	runningState: RunningState;
 
 	constructor(cardList: Card[]) {
 		this.grid = createGrid(WORLD_HEIGHT, WORLD_WIDTH, () => Math.random() > 0.7 ? true : null);
 
 		this.screen = Canvas.create(WORLD_WIDTH * SCALE, WORLD_HEIGHT * SCALE);
 
-		this.deck = setUpDeck(cardList);
+		this.deck = drawCards(setUpDeck(cardList), 5);
 
 		this.deckWatcher = createExternalStore(() => this.deck);
 
 		this.player = new Player(Vector.zero());
+
+		this.runningState = { moves: 0, pickUps: 0 };
+
+		this.stateWatcher = createExternalStore(() => this.runningState);
+	}
+
+	move(x: number, y: number) {
+		if (this.runningState.moves <= 0) {
+			return;
+		}
+
+		const nextPos = this.player.pos.add(new Vector(x, y));
+
+		if (this.grid[nextPos.y][nextPos.x]) {
+			return;
+		}
+
+		this.player.pos = nextPos;
+		this.runningState = { ...this.runningState, moves: this.runningState.moves - 1 };
+
+		this.stateWatcher.triggerUpdate();
+
+		this.draw();
+	}
+
+	createCardPlayContext(): CardPlayContext & { anyChanges: () => boolean } {
+		let anyStateChanges = false;
+
+		return {
+			gainMove: (moves: number) => {
+				this.runningState.moves += moves;
+				anyStateChanges = true;
+			},
+			gainPickUp: (pickUps: number) => {
+				this.runningState.pickUps += pickUps;
+				anyStateChanges = true;
+			},
+			anyChanges: () => anyStateChanges,
+		};
+	}
+
+	playCard(cardId: number) {
+		const foundCard = this.deck.hand.find(c => c.id === cardId);
+
+		if (!foundCard) {
+			return;
+		}
+
+		const context = this.createCardPlayContext();
+		foundCard.effect(context);
+
+		if (context.anyChanges()) {
+			this.runningState = { ...this.runningState };
+			this.stateWatcher.triggerUpdate();
+		}
+
+		if (foundCard.tags.includes('single-use')) {
+			this.deck = destroyCard(this.deck, cardId);
+		} else {
+			this.deck = playCard(this.deck, cardId);
+		}
+		this.deckWatcher.triggerUpdate();
 	}
 
 	draw() {
