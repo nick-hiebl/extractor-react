@@ -17,12 +17,13 @@
 	border-radius: 8px;
 	overflow: hidden;
 
-	transition: transform 0.1s ease;
+	transition: transform 0.3s ease;
+	transform: translateY(0px) scale(1.0);
 	margin-right: -24px;
 }
 
 .card:hover {
-	transform: scale(1.03);
+	transform: translateY(0px) scale(1.03);
 	transition: transform 0.1s ease;
 	z-index: 10;
 }
@@ -41,4 +42,11 @@
 	padding: 4px;
 	justify-content: center;
 	background-color: #333;
+}
+
+.card[data-removed="true"] {
+	opacity: 0;
+	transform: translateY(-60px) scale(0.8);
+	transition: transform 0.3s ease-in;
+	transition: opacity 0.3s ease-in;
 }
